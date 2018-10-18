@@ -1,0 +1,35 @@
+#!/usr/bin/expect
+#
+# Send SSH password and exit
+# Requires an existing SSH session with the correct username
+#
+# USAGE:
+# bm-p9-ssh-init admin-password
+
+
+expect_after {
+	-i $any_spawn_id eof { 
+           send_user "program terminated\n"; 
+           exit 1; 
+        }
+	-i $any_spawn_id timeout { 
+           send_user "timed out waiting for pattern\n";
+           exit 1;
+        }
+}
+
+proc usage { } {
+   global argv0;
+
+   puts "Usage: $argv0 password";
+   
+   exit 1;
+}
+
+set timeout 40
+
+set pass [lindex $argv 0]
+#set prompt "\\\$ $"
+
+expect "password:" { send "$pass\n";}
+exit 0;

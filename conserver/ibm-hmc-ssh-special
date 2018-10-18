@@ -1,0 +1,30 @@
+#!/usr/bin/expect -f
+
+if {$argc != 5} {
+  send_error "USAGE: $argv0 \[vios-hostname\] \[vios-username\] \[vios-password\] \[parition-id\]\n"
+  exit 1
+}
+
+set vioshostname [lindex $argv 0]
+set viosuser [lindex $argv 1]
+set viospassword [lindex $argv 2]
+set partitionid [lindex $argv 3]
+set systemnid [lindex $argv 4]
+set prompt "localhost:~> "
+
+set timeout 60
+set prompt "$ "
+spawn /bin/sh
+match_max 100000
+send -- "ssh -o StrictHostKeyChecking=no $viosuser@$vioshostname\r"
+set timeout 120
+expect "assword: "
+send -- "$viospassword\r"
+expect -- "hscroot@localhost:~>"
+send -- "rmvterm -m $systemnid -p  $partitionid ; mkvterm -m $systemnid  -p $partitionid \r"
+#send -- "mkvterm -m $systemnid  -p $partitionid \r"
+interact {
+	-o -ex "~!@leave" { return }
+}
+puts "Console lost, exiting"
+exit 1
